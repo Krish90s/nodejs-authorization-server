@@ -1,36 +1,39 @@
-const express = require('express')
-const mongoose = require('mongoose');
-const { User } = require('./models/userModel');
+const express = require("express");
 const bodyParser = require("body-parser");
-const app = express()
-const port = 3000
+const connectDB = require("./config/db");
+const authRouter = require("./routes/auth");
+const cors = require("cors");
+const passport = require("passport");
+const session = require("express-session");
 
+require("dotenv").config();
 
-const MONGO_URI = 'mongodb://localhost:27017/authorization';
+const app = express();
+const port = 3000;
 
-mongoose.connect(MONGO_URI)
-  .then(() => {
-    console.log('Connected to MongoDB');
-  })
-  .catch((error) => {
-    console.error('Error connecting to MongoDB:', error);
-  });
+connectDB();
 
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(
+	session({
+		secret: "demo",
+		resave: false,
+		saveUninitialized: true,
+	})
+);
+
+app.use(cors());
+app.use(passport.initialize());
+// app.use(passport.session());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-app.get('/', (req, res) => {
-  res.send('Hello World!')
-})
-app.get('/users/db', async(req, res) => {
-  const users  = await User.find()
-  res.send(users)
-})
-app.get('/users/redis', async(req, res) => {
-  res.send('Hello World!')
-})
+app.get("/logout", (req, res) => {
+	req.logout();
+	res.redirect("http://localhost:5173/login");
+});
 
+app.use("/api/v1/auth", authRouter);
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+	console.log(`Example app listening on port ${port}`);
+});

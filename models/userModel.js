@@ -1,13 +1,27 @@
-const { default: mongoose } = require("mongoose");
+// backend/models/user.js
+const mongoose = require("mongoose");
 
-const userSchema = new mongoose.Schema({
-    name: { type: String },
-    email: { type: String },
-    emailVerified: { type: Date },
-    image: { type: String },
-  }, {
-    timestamps: true
-  });
+const userSchema = new mongoose.Schema(
+	{
+		name: String,
+		email: { type: String, unique: true },
+		image: String,
+		accounts: [
+			{
+				type: mongoose.Schema.Types.ObjectId,
+				ref: "Account",
+			},
+		],
+		sessions: [
+			{
+				type: mongoose.Schema.Types.ObjectId,
+				ref: "Session",
+			},
+		],
+	},
+	{ timestamps: true }
+);
 
-  const User = mongoose.model('User', userSchema);
-  module.exports = {User};
+const User = mongoose.model("User", userSchema);
+
+module.exports = User;
