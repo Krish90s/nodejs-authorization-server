@@ -5,6 +5,7 @@ const authRouter = require("./routes/auth");
 const cors = require("cors");
 const passport = require("passport");
 const session = require("express-session");
+require("./config/passport");
 
 require("dotenv").config();
 
@@ -13,17 +14,18 @@ const port = 3000;
 
 connectDB();
 
+app.use(cors());
+
 app.use(
 	session({
-		secret: "demo",
+		secret: "mysecret",
 		resave: false,
 		saveUninitialized: true,
+		cookie: { secure: false },
 	})
 );
-
-app.use(cors());
 app.use(passport.initialize());
-// app.use(passport.session());
+app.use(passport.session());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
